@@ -841,6 +841,8 @@ Total power delta direct vs composite: ~18 mW
 
 ### 2.16 Custom GPU: "Pixelion-128"
 
+![Pixelion-128 GPU Architecture](../gpu.jpg)
+
 A fully specified, physically realizable tile-based deferred renderer (TBDR) for a phone SoC.
 
 #### Identity
