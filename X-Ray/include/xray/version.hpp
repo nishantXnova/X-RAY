@@ -1,0 +1,11 @@
+#ifndef XRAY_VERSION_HPP
+#define XRAY_VERSION_HPP
+
+#define XRAY_VERSION_MAJOR 1
+#define XRAY_VERSION_MINOR 0
+#define XRAY_VERSION_PATCH 0
+#define XRAY_VERSION_STRING "1.0.0"
+#define XRAY_PROJECT_NAME "X-RAY"
+#define XRAY_PROJECT_FULLNAME "AI Hardware Diagnostic Agent"
+
+#endif

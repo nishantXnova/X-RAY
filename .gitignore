@@ -1,0 +1,22 @@
+# Build artifacts
+build/
+*.exe
+*.obj
+*.o
+*.a
+*.lib
+*.dll
+*.pdb
+
+# IDE
+.vscode/
+.idea/
+*.user
+*.suo
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Local config with secrets (keep tracked template safe)
+Config/config.json

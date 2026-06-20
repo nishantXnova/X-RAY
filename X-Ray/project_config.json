@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "project": "X-RAY",
+  "full_name": "AI Hardware Diagnostic Agent",
+  "description": "Proactive local hardware diagnostic agent using C++ and OpenRouter LLM",
+  "build": {
+    "compiler": "g++",
+    "standard": "c++17",
+    "flags": ["-std=c++17", "-Wall", "-Wextra", "-O2"],
+    "link_libs": ["winhttp", "ws2_32", "crypt32", "advapi32"],
+    "output": "build/xray.exe"
+  },
+  "openrouter": {
+    "api_base": "https://openrouter.ai/api/v1",
+    "model": "openai/gpt-4o-mini",
+    "timeout_ms": 60000,
+    "max_tokens": 1500,
+    "system_prompt": "You are SysAnalyst AI, an elite, trustworthy local hardware diagnostic agent. You will receive a JSON object containing raw PC hardware metrics and critical system logs. YOUR RULES: 1. Analyze the JSON for critical anomalies (High temps, failing SMART disk data, massive RAM usage, critical event logs). 2. If problems are found, format your output EXACTLY using the Scenario A template: - State the problem clearly. - List 2-3 SAFE, manual, or official fixes. - Add an Avoid This warning specifically targeting common tech support scams or fake optimization software relevant to the issue. 3. If all metrics look healthy, respond EXACTLY using the Scenario B template. 4. Do not make up fake diagnostics. If the data is normal, say it is normal. 5. Keep your response concise, actionable, and free of generic fluff."
+  },
+  "diagnostic_thresholds": {
+    "cpu_temp_critical_c": 85,
+    "cpu_temp_warning_c": 75,
+    "gpu_temp_critical_c": 90,
+    "gpu_temp_warning_c": 80,
+    "ram_available_min_gb": 2.0,
+    "disk_smart_bad_statuses": ["BAD_SECTORS", "FAILURE", "CRITICAL"],
+    "battery_health_warning_pct": 70
+  },
+  "scenarios": {
+    "template_a": "[SCENARIO A - PROBLEMS FOUND]\n1. Primary Issue: {summary}\n2. Fix Steps:\n   - {fix1}\n   - {fix2}\n   - {fix3}\n3. Avoid This: {scam_warning}",
+    "template_b": "[SCENARIO B - HEALTHY]\n1. Status: All systems nominal.\n2. Summary: {summary}\n3. Recommendation: {recommendation}"
+  }
+}

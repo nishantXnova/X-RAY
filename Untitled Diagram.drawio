@@ -1,0 +1,181 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="MUX-Switch-Architecture" id="mux-switch-arch">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ── USERSAPCE ── -->
+        <mxCell id="userspace" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f59e0b;strokeColor=#b45309;strokeWidth=2;" vertex="1">
+          <mxGeometry width="260" height="90" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="userspace_label" value="&lt;b&gt;👤 Userspace&lt;/b&gt;" style="text;html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1" vertex="1">
+          <mxGeometry width="120" height="24" x="110" y="48" as="geometry" />
+        </mxCell>
+        <mxCell id="app" value="Game / Vulkan App&lt;br&gt;SurfaceFlinger" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fffbeb;strokeColor=#f59e0b;" vertex="1">
+          <mxGeometry width="220" height="48" x="60" y="76" as="geometry" />
+        </mxCell>
+
+        <!-- ── KERNEL ── -->
+        <mxCell id="kernel" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#22c55e;strokeColor=#15803d;strokeWidth=2;" vertex="1">
+          <mxGeometry width="260" height="190" x="40" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="kernel_label" value="&lt;b&gt;🐧 Kernel (Linux / Android)&lt;/b&gt;" style="text;html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;fontSize=13;fontStyle=1" vertex="1">
+          <mxGeometry width="200" height="24" x="70" y="168" as="geometry" />
+        </mxCell>
+        <mxCell id="ioctl" value="ioctl Interface&lt;br&gt;MUX_SWITCH / MUX_QUERY&lt;br&gt;AF_XDP zero-copy mmap" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#22c55e;" vertex="1">
+          <mxGeometry width="220" height="48" x="60" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="muxd" value="&lt;b&gt;muxd&lt;/b&gt; — Realtime Policy Thread&lt;br&gt;SCHED_FIFO prio -20&lt;br&gt;score engine + hysteresis" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#22c55e;" vertex="1">
+          <mxGeometry width="220" height="48" x="60" y="258" as="geometry" />
+        </mxCell>
+        <mxCell id="drv" value="&lt;b&gt;gpumux-pdev&lt;/b&gt; Platform Driver&lt;br&gt;fabric init · IRQ · power domain seq" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#22c55e;" vertex="1">
+          <mxGeometry width="220" height="48" x="60" y="316" as="geometry" />
+        </mxCell>
+
+        <!-- ── HW FABRIC ── -->
+        <mxCell id="fabric" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#38bdf8;strokeWidth=2;" vertex="1">
+          <mxGeometry width="340" height="310" x="380" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="fabric_label" value="&lt;font color=#e2e8f0&gt;&lt;b&gt;🔧 HW MUX SWITCH FABRIC&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;RTL / ASIC Macrocell ~450 LC&lt;/font&gt;" style="text;html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;fontSize=12;" vertex="1">
+          <mxGeometry width="300" height="36" x="400" y="168" as="geometry" />
+        </mxCell>
+        <mxCell id="xbar" value="&lt;font color=#e2e8f0&gt;&lt;b&gt;2×2 Credit-Based Crossbar&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;lock-free round-robin arbiter&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;1-cycle atomic hot-swap (32 lanes)&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#38bdf8;" vertex="1">
+          <mxGeometry width="280" height="56" x="410" y="212" as="geometry" />
+        </mxCell>
+        <mxCell id="owner" value="&lt;font color=#e2e8f0&gt;&lt;b&gt;MUX_OWNER Register&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;2-bit atomic · [1]=GPU [0]=EXT&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#38bdf8;" vertex="1">
+          <mxGeometry width="280" height="48" x="410" y="278" as="geometry" />
+        </mxCell>
+        <mxCell id="credit" value="&lt;font color=#e2e8f0&gt;&lt;b&gt;Credit Pool (32 tokens)&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;backpressure no CDC buffer&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#38bdf8;" vertex="1">
+          <mxGeometry width="200" height="40" x="450" y="336" as="geometry" />
+        </mxCell>
+        <mxCell id="gpio_fast" value="&lt;font color=#e2e8f0&gt;&lt;b&gt;GPIO Fast-Switch Latch&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;game-mode toggle &amp;lt; 1 μs&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;no CPU IRQ needed&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#ec4899;" vertex="1">
+          <mxGeometry width="220" height="48" x="430" y="386" as="geometry" />
+        </mxCell>
+        <mxCell id="regspace" value="&lt;font color=#e2e8f0&gt;&lt;b&gt;Register Space&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;0x9200_0000 APB3 slave&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#64748b;" vertex="1">
+          <mxGeometry width="200" height="36" x="450" y="444" as="geometry" />
+        </mxCell>
+
+        <!-- ── CUSTOM GPU ── -->
+        <mxCell id="gpu" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#a855f7;strokeWidth=2;" vertex="1">
+          <mxGeometry width="300" height="170" x="380" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="gpu_label" value="&lt;font color=#e2e8f0&gt;&lt;b&gt;🎮 Custom Ultra-Tiny Mobile GPU&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;direct-fabric port (no APB / no DVM)&lt;/font&gt;" style="text;html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;fontSize=12;" vertex="1">
+          <mxGeometry width="280" height="30" x="390" y="516" as="geometry" />
+        </mxCell>
+        <mxCell id="gpu_cmd" value="&lt;font color=#e2e8f0&gt;Command Ring Buffer&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;64B FIFO · 4 streamers&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#a855f7;" vertex="1">
+          <mxGeometry width="240" height="40" x="410" y="554" as="geometry" />
+        </mxCell>
+        <mxCell id="gpu_l2" value="&lt;font color=#e2e8f0&gt;L2 Tile Cache 256 KB&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#a855f7;" vertex="1">
+          <mxGeometry width="240" height="32" x="410" y="604" as="geometry" />
+        </mxCell>
+        <mxCell id="gpu_disp" value="&lt;font color=#e2e8f0&gt;Display Output Engine&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;tile composer · PQ tone-map&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;DSI + DP Alt-Mode encoder&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#a855f7;" vertex="1">
+          <mxGeometry width="240" height="48" x="410" y="644" as="geometry" />
+        </mxCell>
+
+        <!-- ── OUTPUTS ── -->
+        <mxCell id="outputs" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#ef4444;strokeWidth=2;" vertex="1">
+          <mxGeometry width="280" height="110" x="760" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="outputs_label" value="&lt;font color=#e2e8f0&gt;&lt;b&gt;🖥️ Output Targets&lt;/b&gt;&lt;/font&gt;" style="text;html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;fontSize=12;" vertex="1">
+          <mxGeometry width="160" height="24" x="820" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="panel" value="&lt;font color=#e2e8f0&gt;Internal Panel&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;DSI 4-lane 2.5 Gbps&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#ef4444;" vertex="1">
+          <mxGeometry width="220" height="40" x="790" y="322" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_usbc" value="&lt;font color=#e2e8f0&gt;USB-C External Display&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;DP Alt-Mode HBR2&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#ef4444;" vertex="1">
+          <mxGeometry width="220" height="40" x="790" y="372" as="geometry" />
+        </mxCell>
+
+        <!-- ── POLICY ENGINE ── -->
+        <mxCell id="policy" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1e293b;strokeColor=#ec4899;strokeWidth=2;" vertex="1">
+          <mxGeometry width="320" height="160" x="380" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="policy_label" value="&lt;font color=#e2e8f0&gt;&lt;b&gt;🧠 Smart Switching Policy Engine&lt;/b&gt;&lt;/font&gt;" style="text;html=1;whiteSpace=wrap;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;fontSize=12;" vertex="1">
+          <mxGeometry width="280" height="24" x="400" y="728" as="geometry" />
+        </mxCell>
+        <mxCell id="score" value="&lt;font color=#e2e8f0&gt;Score Function&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;W₁·fps + W₂·thermal + W₃·ext + W₄·hint − W₅·penalty&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#ec4899;" vertex="1">
+          <mxGeometry width="280" height="40" x="400" y="762" as="geometry" />
+        </mxCell>
+        <mxCell id="hyst" value="&lt;font color=#e2e8f0&gt;Hysteresis&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;&amp;gt;2frames→direct · &amp;gt;10frames→composite&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#ec4899;" vertex="1">
+          <mxGeometry width="280" height="36" x="400" y="812" as="geometry" />
+        </mxCell>
+        <mxCell id="triggers" value="&lt;font color=#e2e8f0&gt;Trigger Stack&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;1.ioctl · 2.HPD · 3.ThermalTJ&amp;gt;95°C&lt;/font&gt;&lt;br&gt;&lt;font color=#94a3b8&gt;4.V-Sync miss · 5.Periodic 250ms&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0f172a;strokeColor=#ec4899;" vertex="1">
+          <mxGeometry width="280" height="44" x="400" y="858" as="geometry" />
+        </mxCell>
+
+        <!-- ── MEMORY (side) ── -->
+        <mxCell id="mem" value="&lt;b&gt;Memory Map&lt;/b&gt;&lt;br&gt;DRAM shared (IO coherency port)&lt;br&gt;0x9000_0000 GPU private (uncached WC)&lt;br&gt;0x9100_0000 Display private&lt;br&gt;0x9200_0000 Fabric regs (APB3)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fefce8;strokeColor=#eab308;" vertex="1">
+          <mxGeometry width="240" height="96" x="760" y="520" as="geometry" />
+        </mxCell>
+
+        <!-- ── EDGES ── -->
+        <!-- Userspace → Kernel -->
+        <mxCell id="e1" value="ioctl / AF_XDP" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#f59e0b;" edge="1" parent="1" source="app" target="ioctl">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Kernel internal -->
+        <mxCell id="e2" value="SMC to EL3 / reg write" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#22c55e;dashed=1;" edge="1" parent="1" source="muxd" target="drv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="policy" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#ec4899;dashed=1;" edge="1" parent="1" source="muxd" target="score">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Kernel → Fabric -->
+        <mxCell id="e4" value="APB regs 0x9200_0xxx" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#22c55e;" edge="1" parent="1" source="drv" target="regspace">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- GPU → Fabric (direct) -->
+        <mxCell id="e5" value="direct-gpu fabric&lt;br&gt;(bypasses interconnect)" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#a855f7;" edge="1" parent="1" source="gpu_disp" target="xbar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Fabric → Outputs -->
+        <mxCell id="e6" value="Output A · Panel scanout" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#38bdf8;" edge="1" parent="1" source="xbar" target="panel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="Output B · USB-C encoder" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#38bdf8;" edge="1" parent="1" source="xbar" target="ext_usbc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Fabric internal -->
+        <mxCell id="e8" value="credit" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#64748b;dashed=1;" edge="1" parent="1" source="xbar" target="credit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="atomic" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#64748b;dashed=1;" edge="1" parent="1" source="xbar" target="owner">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Policy → muxd (feedback) -->
+        <mxCell id="e10" value="decision" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#ec4899;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="hyst" target="muxd">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="850" as="sourcePoint" />
+            <mxPoint x="200" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- GPU sub blocks -->
+        <mxCell id="e11" value="ring" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#a855f7;dashed=1;" edge="1" parent="1" source="gpu_cmd" target="gpu_disp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="L2" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#a855f7;dashed=1;" edge="1" parent="1" source="gpu_l2" target="gpu_disp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Memory connections (soft) -->
+        <mxCell id="e13" value="DRAM / uncached WC" style="endArrow=classic;html=1;rounded=0;strokeWidth=1;strokeColor=#94a3b8;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="gpu_l2" target="mem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- GPIO fast path -->
+        <mxCell id="e14" value="fast-switch&lt;br&gt;&lt; 1 μs" style="endArrow=classic;html=1;rounded=0;strokeWidth=1.5;strokeColor=#ec4899;" edge="1" parent="1" source="gpio_fast" target="xbar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

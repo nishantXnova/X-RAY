@@ -1,0 +1,67 @@
+%% MUX Switch Architecture — Ultra-Low-Latency Mobile GPU Direct Path
+%% Single-file Mermaid.js diagram
+%% Render with: mmdc -i architecture.mmd -o architecture.svg
+
+flowchart TD
+    subgraph USERS["👤 Userspace"]
+        APP["Game / Vulkan App<br/>SurfaceFlinger"]
+    end
+
+    subgraph KERNEL["🐧 Kernel (Linux / Android)"]
+        IOCTL["ioctl Interface<br/>MUX_SWITCH / MUX_QUERY"]
+        MUXD["muxd — Realtime Policy Thread<br/>SCHED_FIFO prio -20"]
+        DRV["gpumux-pdev Platform Driver<br/>fabric init, IRQ, power seq"]
+    end
+
+    subgraph FABRIC["🔧 HW MUX SWITCH FABRIC<br/>(RTL / ASIC Macrocell)"]
+        XBAR["2×2 Credit-Based Crossbar<br/>lock-free, round-robin arbiter<br/>1-cycle atomic hot-swap"]
+        OWNER["MUX_OWNER Register<br/>2-bit atomic state<br/>[1]=GPU [0]=EXT"]
+        CREDIT["Credit Pool (32 tokens)<br/>backpressure, no CDC buffer"]
+        GPIO_FAST["GPIO Fast-Switch Latch<br/>< 1 μs game-mode toggle"]
+    end
+
+    subgraph GPU_SUB["🎮 Custom Ultra-Tiny Mobile GPU"]
+        CMD_RING["Command Ring Buffer<br/>64B FIFO × 4 streamers"]
+        L2["L2 Tile Cache 256 KB"]
+        DISP_ENG["Display Output Engine<br/>tile composer · PQ tone-map<br/>DSI/DP encoder"]
+    end
+
+    subgraph DISPLAYS["🖥️ Output Targets"]
+        PANEL["Internal Panel<br/>DSI 4-lane 2.5 Gbps"]
+        EXT_USBC["USB-C External<br/>DP Alt-Mode HBR2"]
+    end
+
+    subgraph POLICY["🧠 Smart Switching Policy"]
+        SCORE["Score Function<br/>W₁·fps + W₂·thermal + W₃·ext + W₄·hint − W₅·penalty"]
+        HYST["Hysteresis<br/>>2 frames → direct<br/>>10 frames → composite"]
+        TRIGGERS["Trigger Stack<br/>1. ioctl<br/>2. HPD IRQ<br/>3. Thermal TJ>95°C<br/>4. V-Sync miss<br/>5. Periodic 250ms"]
+    end
+
+    APP -->|AF_XDP / ioctl| IOCTL
+    IOCTL -->|SMC to EL3| MUXD
+    MUXD -->|reg write 0x9200| DRV
+    DRV -->|APB config| FABRIC
+
+    MUXD --> POLICY
+    POLICY -.->|decision| MUXD
+
+    FABRIC --> XBAR
+    XBAR <--> CREDIT
+    FABRIC --> OWNER
+    FABRIC --> GPIO_FAST
+
+    APP -.->|direct-gpu fabric| GPU_SUB
+    GPU_SUB --> CMD_RING
+    GPU_SUB --> L2
+    GPU_SUB --> DISP_ENG
+    DISP_ENG -->|32-lane hot-swap| XBAR
+
+    XBAR -->|Output A| PANEL
+    XBAR -->|Output B| EXT_USBC
+
+    style FABRIC fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#e2e8f0
+    style GPU_SUB fill:#1e293b,stroke:#a855f7,stroke-width:2px,color:#e2e8f0
+    style KERNEL fill:#1e293b,stroke:#22c55e,stroke-width:2px,color:#e2e8f0
+    style USERS fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#e2e8f0
+    style DISPLAYS fill:#1e293b,stroke:#ef4444,stroke-width:2px,color:#e2e8f0
+    style POLICY fill:#1e293b,stroke:#ec4899,stroke-width:2px,color:#e2e8f0
